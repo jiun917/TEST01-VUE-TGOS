@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <script type="text/javascript" src="https://api.tgos.tw/TGOS_API/tgos?ver=2&AppID=x+JLVSx85Lk=&APIKey=in8W74q0ogpcfW/STwicK8D5QwCdddJf05/7nb+OtDh8R99YN3T0LurV4xato3TpL/fOfylvJ9Wv/khZEsXEWxsBmg+GEj4AuokiNXCh14Rei21U5GtJpIkO++Mq3AguFK/ISDEWn4hMzqgrkxNe1Q==" charset="utf-8"></script>
+    <script>
+      window.onload=InitWnd;
+      
+      var pMap;			//建立初始化地圖
+            var pTGMarker;		//Marker物件
+            var markerPoint;	//Marker位置
+            var markerTitle;	//Marker標題
+            var markerImg;		//Marker圖片
+			var messageBox;		//訊息視窗
+			var opacity;		//訊息視窗透明度
+			var content;		//訊息視窗內文
+			var imgUrl;			//Marker圖示連結
+            function InitWnd()
+            {
+                var pOMap = document.getElementById("OMap");
+                pMap = new TGOS.TGOnlineMap(pOMap, TGOS.TGCoordSys.EPSG3826);//選擇TWD97坐標
+				
+                markerPoint = new TGOS.TGPoint(303832.533, 2767738.285);//標記點坐標
+                markerImg = new TGOS.TGImage("https://api.tgos.tw/TGOSMAPAPI/images/Sample/marker.png", 
+					new TGOS.TGSize(38, 33), new TGOS.TGPoint(0, 0), new TGOS.TGPoint(10, 33));//標記點圖片大小
+                pTGMarker = new TGOS.TGMarker(pMap, markerPoint,"NTU", markerImg);
+                var InfoWindowOptions = {
+                      maxWidth:4000, //訊息視窗的最大寬度
+                      pixelOffset: new TGOS.TGSize(5, -30), //InfoWindow起始位置的偏移量, 使用TGSize設定, 向右X為正, 向上Y為負  
+                      zIndex:99 //視窗堆疊順序
+                };				
+				messageBox = new TGOS.TGInfoWindow("台北市大安區羅斯福路四段一號", markerPoint, InfoWindowOptions);//訊息視窗出現位置							
+				TGOS.TGEvent.addListener(pTGMarker, "mouseover", openInfoWindow);//滑鼠監聽事件
+				TGOS.TGEvent.addListener(pTGMarker, "mouseout", closeInfoWindow);
+                //加入Marker(地圖物件,Marker坐標,Marker標題,Marker圖案)
+            }
+            function setMarker()
+            {
+				if(document.getElementById("X").value == "" || document.getElementById("Y").value == ""){
+					alert("請輸入坐標");
+				}else{
+					markerTitle = document.getElementById("title").value;	//取得標題
+					opacity = document.getElementById("infoWindowOpacity").value;	//取得透明度
+					markerPoint = new TGOS.TGPoint(Number(document.getElementById("X").value), 
+						Number(document.getElementById("Y").value));	//取得標記點位
+					content = document.getElementById("infoWindowContent").value; //取得訊息文字
+					imgUrl = document.getElementById("iconUrl").value	//取得圖示URL
+					
+					pTGMarker.setTitle(markerTitle);//設定標題	
+					if(pTGMarker){
+						pTGMarker.setPosition(markerPoint);//設定位置
+					}
+					
+					markerImg = new TGOS.TGImage(imgUrl, new TGOS.TGSize(38, 33),
+						new TGOS.TGPoint(0, 0), new TGOS.TGPoint(10, 33));
+					pTGMarker.setIcon(markerImg);//設定圖片
+					
+					if(messageBox){
+						messageBox.setPosition(markerPoint);//設定訊息視窗隨標記點位置改變
+						messageBox.setContent(content);
+						messageBox.putOpacity(opacity);
+					}
+					TGOS.TGEvent.addListener(pTGMarker, "mouseover", openInfoWindow);//滑鼠監聽事件
+					TGOS.TGEvent.addListener(pTGMarker, "mouseout", closeInfoWindow);
+				}			    
+			}
+			function openInfoWindow()
+            {		
+				messageBox.open(pMap);
+            }
+			function closeInfoWindow(){
+				messageBox.close();
+			}
+    </script>
+  </head>
+  <body style="position: relative">
+    <noscript>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+    <div id="OMap"  style=" position:relative;margin-right:auto;margin-left:auto;width:550px;height: 600px; border: 1px solid #C0C0C0;"></div><br/>
+  
+  </body>
+</html>
